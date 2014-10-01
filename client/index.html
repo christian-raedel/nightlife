@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html ng-app="app">
+    <head>
+        <title>nightlife</title>
+        <link rel="stylesheet" type="text/css" href="../bower_components/reset-css/reset.css">
+        <link rel="stylesheet" type="text/css" href="build/style.css">
+    </head>
+    <body class="vbox">
+        <header class="item-2">
+            <h1>Hello Nightlife!</h1>
+            <p>
+            We are using node.js <script>document.write(process.version)</script> and
+            atom-shell <script>document.write(process.versions['atom-shell'])</script>.
+            <p>
+        </header>
+
+        <article class="item-7" ui-view></article>
+
+        <footer class="item-1">
+        </footer>
+
+        <script src="build/app.js"></script>
+    </body>
+</html>

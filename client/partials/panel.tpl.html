@@ -1,0 +1,15 @@
+<section class="panel-wrapper vbox" ng-if="header || description">
+    <header class="panel-header item-1">
+        <h4>{{header}}</h4>
+    </header>
+    <article class="panel-body item-7 vbox">
+    </article>
+    <footer class="panel-footer item-2 hbox">
+        <p class="item-7">{{description}}</p>
+        <aside class="item-2">
+            <a class="button panel-button" ng-click="call()">
+                {{caption}}
+            </a>
+        </aside>
+    </footer>
+</section>
