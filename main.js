@@ -5,11 +5,11 @@ var app             = require('app')
     , shortcut      = require('global-shortcut')
     , filemanager   = require('./lib/filemanager')
     , TvDB          = require('./lib/tvdb')
+    , cheerio       = require('cheerio')
     , q             = require('q')
     , _             = require('lodash');
 
-var mainWindow = null
-    , tvdb = new TvDB();
+var mainWindow = null;
 
 app.on('window-all-closed', function () {
     if (process.platform != 'darwin') {
