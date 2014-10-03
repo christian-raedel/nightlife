@@ -63,13 +63,13 @@ module.exports = function (grunt) {
 
     [
         'grunt-html2js',
-        'grunt-contrib-concat',
         'grunt-contrib-less',
+        'grunt-contrib-concat',
         'grunt-contrib-clean',
         'grunt-contrib-watch'
     ].forEach(function (task) {
         grunt.loadNpmTasks(task);
     });
 
-    grunt.registerTask('default', ['html2js', 'concat', 'less', 'clean']);
+    grunt.registerTask('default', ['html2js', 'less', 'concat', 'clean']);
 };

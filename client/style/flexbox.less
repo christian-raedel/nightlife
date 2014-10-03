@@ -1,0 +1,21 @@
+.flexbox {
+    display: flex;
+
+    &.vertical {
+        flex-direction: column;
+    }
+
+    &.item {
+        &.one {
+            flex: 1 0 auto;
+        }
+
+        &.two {
+            flex: 2 0 auto;
+        }
+
+        &.seven {
+            flex: 7 0 auto;
+        }
+    }
+}

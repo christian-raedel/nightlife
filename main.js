@@ -3,9 +3,13 @@ var app             = require('app')
     , ipc           = require('ipc')
     , dialog        = require('dialog')
     , shortcut      = require('global-shortcut')
+    , filemanager   = require('./lib/filemanager')
+    , TvDB          = require('./lib/tvdb')
+    , q             = require('q')
     , _             = require('lodash');
 
-var mainWindow = null;
+var mainWindow = null
+    , tvdb = new TvDB();
 
 app.on('window-all-closed', function () {
     if (process.platform != 'darwin') {
@@ -14,7 +18,13 @@ app.on('window-all-closed', function () {
 });
 
 app.on('ready', function () {
-    mainWindow = new BrowserWindow({width: 800, height: 600});
+    mainWindow = new BrowserWindow({
+        width: 1280,
+        height: 800,
+        center: true,
+        'zoom-factor': 1.5,
+        title: 'Nightlife'
+    });
     mainWindow.loadUrl('file://' + process.cwd() + '/client/index.html');
 
     mainWindow.on('closed', function () {
@@ -28,9 +38,10 @@ app.on('ready', function () {
     shortcut.register('ctrl+r', function () {
         BrowserWindow.getFocusedWindow().reloadIgnoringCache();
     });
-
-    ipc.on('choose-folder', function () {
-        var folder = dialog.showOpenDialog({properties: ['openDirectory', 'multiSelections']});
-    });
 });
 
+ipc.on('choose-folders', function () {
+    console.log('received choose-folders event...');
+    var folders = dialog.showOpenDialog({properties: ['openDirectory', 'multiSelections']});
+    console.log('choosen folders:', folders);
+});
