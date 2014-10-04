@@ -1,6 +1,6 @@
 /node_modules
 /bower_components
-/client/build
+/client/bundle.js
 /doc
 /test/renamed
 npm-debug.log

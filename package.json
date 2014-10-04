@@ -28,18 +28,33 @@
     "lodash": "^2.4.1",
     "node-cconf": "git+https://github.com/christian-raedel/node-cconf",
     "node-clogger": "git+https://github.com/christian-raedel/node-clogger",
-    "q": "^1.0.1"
+    "node-cstore": "git+https://github.com/christian-raedel/node-cstore",
+    "q": "^1.0.1",
+    "react": "^0.11.2",
+    "react-async": "^1.0.2",
+    "react-router": "^0.8.0"
   },
   "devDependencies": {
     "chai": "^1.9.1",
     "chai-as-promised": "^4.1.1",
     "chai-spies": "^0.5.1",
+    "css-loader": "^0.9.0",
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-concat": "^0.5.0",
     "grunt-contrib-less": "^0.11.4",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-html2js": "^0.2.9",
-    "mocha": "^1.21.4"
+    "html-loader": "^0.2.3",
+    "json-loader": "^0.5.1",
+    "jsx-loader": "^0.11.2",
+    "less": "^1.7.5",
+    "less-loader": "^0.7.7",
+    "markdown-loader": "^0.1.2",
+    "mocha": "^1.21.4",
+    "raw-loader": "^0.5.1",
+    "style-loader": "^0.8.1",
+    "webpack": "^1.4.4",
+    "webpack-dev-server": "^1.6.5"
   }
 }
