@@ -5,11 +5,13 @@ var app             = require('app')
     , shortcut      = require('global-shortcut')
     , filemanager   = require('./lib/filemanager')
     , TvDB          = require('./lib/tvdb')
-    , cheerio       = require('cheerio')
+    , CLogger       = require('node-clogger')
     , q             = require('q')
     , _             = require('lodash');
 
-var mainWindow = null;
+var mainWindow = null
+    , tvdb     = new TvDB()
+    , logger   = new CLogger({name: 'nightlife-app'});
 
 app.on('window-all-closed', function () {
     if (process.platform != 'darwin') {
@@ -40,8 +42,27 @@ app.on('ready', function () {
     });
 });
 
-ipc.on('choose-folders', function () {
-    console.log('received choose-folders event...');
-    var folders = dialog.showOpenDialog({properties: ['openDirectory', 'multiSelections']});
-    console.log('choosen folders:', folders);
+ipc.on('choose-folders', function (ev) {
+    logger.info('received choose-folders event...');
+    dialog.showOpenDialog({properties: ['openDirectory', 'multiSelections']}, function (folders) {
+        logger.info('choosen folders:', folders);
+        var queue = [];
+
+        _.forEach(folders, function (folder) {
+            var find = filemanager.find(folder, 'mkv|avi|mp4');
+            queue.push(find);
+        });
+
+        q.all(queue)
+        .then(function (files) {
+            files = _.flatten(files);
+            logger.info('found files:', files);
+
+            ev.sender.send('choosen-files', files);
+        })
+        .catch(function (err) {
+            logger.error('cannot find files!', err, err.stack);
+        })
+        .done();
+    });
 });

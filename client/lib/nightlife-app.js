@@ -3,6 +3,7 @@
 
     angular.module('NightlifeApp', [
         'templates',
+        'ui.grid',
         'ui.router',
         'NightlifeApp.TvDBScreen'
     ])

@@ -21,8 +21,11 @@ module.exports = function (grunt) {
         concat: {
             js: {
                 src: [
+                    'bower_components/jquery/dist/jquery.js',
+                    'bower_components/lodash/dist/lodash.js',
                     'bower_components/angular/angular.js',
                     'bower_components/angular-ui-router/release/angular-ui-router.js',
+                    'bower_components/angular-ui-grid/ui-grid.js',
                     'client/build/templates.js',
                     'client/lib/**/*.js'
                 ],
@@ -31,6 +34,7 @@ module.exports = function (grunt) {
             css: {
                 src: [
                     'bower_components/reset-css/reset.css',
+                    'bower_components/angular-ui-grid/ui-grid.css',
                     'client/build/base.css'
                 ],
                 dest: 'client/build/style.css'
@@ -55,7 +59,8 @@ module.exports = function (grunt) {
                     'watch'
                 ],
                 options: {
-                    debounceDelay: 500
+                    debounceDelay: 500,
+                    spawn: false
                 }
             }
         }
