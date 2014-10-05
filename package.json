@@ -23,6 +23,7 @@
   "homepage": "https://github.com/christian-raedel/nightlife",
   "dependencies": {
     "cheerio": "^0.17.0",
+    "css-reset": "0.0.1",
     "debug": "^2.0.0",
     "dna": "git+https://github.com/christian-raedel/dna",
     "lodash": "^2.4.1",

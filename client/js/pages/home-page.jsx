@@ -5,13 +5,13 @@
 
     var React = require('react');
 
-    var StartPage = React.createClass({
+    var HomePage = React.createClass({
         render: function () {
             return (
-                <h1>StartPage</h1>
+                <h1>HomePage</h1>
             );
         }
     });
 
-    module.exports = StartPage;
+    module.exports = HomePage;
 }());
