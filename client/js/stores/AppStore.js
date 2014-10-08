@@ -14,7 +14,7 @@
     module.exports = AppStore;
 
     var MenuModel = AppStore.getModel('menu');
-    MenuModel.insert({caption: 'Start', href: '/', handler: 'start-page.jsx'})
-    MenuModel.insert({caption: 'TV-Serien Datenbank', href: '/tvdb', handler: 'tvdb-page.jsx'})
-    MenuModel.insert({caption: 'TV-Serien Suche', href: '/tvdb/search', handler: 'tvdb-search-page.jsx'});
+    MenuModel.insert({id: '010', caption: 'Start', page: 'HomePage.jsx'});
+    MenuModel.insert({id: '020', caption: 'TV-Serien Datenbank', page: 'TvDBPage.jsx'});
+    MenuModel.insert({id: '027', caption: 'TV-Serien Suche', page: 'TvDBSearchPage.jsx'});
 }());

@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/christian-raedel/nightlife",
   "dependencies": {
-    "cheerio": "^0.17.0",
     "css-reset": "0.0.1",
     "debug": "^2.0.0",
     "dna": "git+https://github.com/christian-raedel/dna",
@@ -47,6 +46,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-html2js": "^0.2.9",
     "html-loader": "^0.2.3",
+    "imports-loader": "^0.6.3",
     "json-loader": "^0.5.1",
     "jsx-loader": "^0.11.2",
     "less": "^1.7.5",

@@ -66,3 +66,15 @@ ipc.on('choose-folders', function (ev) {
         .done();
     });
 });
+
+ipc.on('search-series', function (ev, query) {
+    logger.info('lookup series [%s]', query);
+    tvdb.getSeries(query, 'de')
+    .then(function (series) {
+        ev.sender.send('found-series', series);
+    })
+    .catch(function (err) {
+        logger.error('cannot lookup series', err, err.stack);
+    })
+    .done();
+});

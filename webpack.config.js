@@ -19,7 +19,7 @@ module.exports = {
         ]
     },
     //externals: {
-
+        //ipc: 'ipc'
     //},
     bail: true,
     target: 'node'

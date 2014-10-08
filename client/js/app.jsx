@@ -4,70 +4,44 @@
     'use strict';
 
     var React          = require('react')
+        , Boxes        = require('./components/Boxes')
+        , MenuModel    = require('./stores/AppStore').getModel('menu')
         , _            = require('lodash');
 
     var CssResetStyle  = require('css-reset/reset.css')
-        , BaseStyle    = require('../style/Base.less');
-
-    var Boxes = React.createClass({
-        getInitialState: function () {
-            return {
-                backgroundColor: 'khaki'
-            };
-        },
-        handleMouseEnter: function (ev) {
-            this.setState({backgroundColor: 'blueviolet'});
-        },
-        handleMouseLeave: function (ev) {
-            this.setState({backgroundColor: 'khaki'});
-        },
-        render: function () {
-            var style = {display: 'flex', flexDirection: this.props.horizontal ? 'row' : 'column'};
-
-            if (this.props.dimension.toString().split(' ').length === 3 || this.props.dimension.toString().indexOf('%') > 0) {
-                style.flex = this.props.dimension;
-                if (this.props.horizontal) {
-                    style.width = '100%';
-                } else {
-                    style.height = '100%';
-                }
-            } else {
-                if (this.props.horizontal) {
-                    style.width = '100%';
-                    style.height = this.props.dimension;
-                } else {
-                    style.width = this.props.dimension;
-                    style.height = '100%';
-                }
-            }
-
-            style.border = '3px solid ' + this.props.horizontal ? 'limegreen' : 'grey';
-            style.backgroundColor = this.state.backgroundColor;
-
-            return (
-                <div style={style} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
-                    {this.props.children}
-                </div>
-            );
-        }
-    });
+        , BaseStyle    = require('../style/Base.less')
+        , ButtonStyle  = require('../style/Button.less');
 
     var App = React.createClass({
+        getInitialState: function () {
+            return {
+                page: MenuModel.find({id: {'$eq': '010'}})[0].page,
+                items: MenuModel.data
+            };
+        },
+        handleOnClick: function (id) {
+            this.setState({
+                page: MenuModel.find({id: {'$eq': id}})[0].page
+            });
+        },
         render: function () {
+            var Page = require('./pages/' + this.state.page);
+
             return (
-                <div style={_.merge(CssResetStyle, BaseStyle)}>
-                    <Boxes horizontal={true} dimension={window.innerHeight}>
-                        <Boxes dimension="1 0 auto">
-                            <h1>It works!</h1>
-                        </Boxes>
-                        <Boxes dimension="2 0 auto">
-                            <p>Juchuuu?!? ;)</p>
-                        </Boxes>
-                        <Boxes dimension="1 0 auto">
-                            <p>Juchuuu... :P</p>
-                        </Boxes>
+                <Boxes horizontal={true} dimension={window.innerHeight} style={_.merge(CssResetStyle, BaseStyle)}>
+                    <Boxes dimension="20%">
+                        {_.map(this.state.items, function (item) {
+                            return (
+                                <button key={item.id} style={ButtonStyle} onClick={this.handleOnClick.bind(this, item.id)}>
+                                    {item.caption}
+                                </button>
+                            );
+                        }, this)}
                     </Boxes>
-                </div>
+                    <Boxes dimension="80%">
+                        <Page />
+                    </Boxes>
+                </Boxes>
             );
         }
     });
