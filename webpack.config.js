@@ -1,3 +1,5 @@
+var webpack = require('webpack');
+
 module.exports = {
     entry: './client/js/app',
     output: {
@@ -18,9 +20,14 @@ module.exports = {
             {test : /\.json$/, loader : 'json'}
         ]
     },
-    //externals: {
-        //ipc: 'ipc'
-    //},
+    plugins: [
+        new webpack.ProvidePlugin({
+            '_'         : 'lodash',
+            '$'         : 'jquery',
+            'jQuery'    : 'jquery',
+            'React'     : 'react'
+        })
+    ],
     bail: true,
     target: 'node'
 }

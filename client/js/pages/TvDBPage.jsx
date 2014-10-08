@@ -3,8 +3,6 @@
 (function () {
     'use strict';
 
-    var React = require('react');
-
     var TvDBPage = React.createClass({
         render: function () {
             return (

@@ -3,45 +3,43 @@
 (function () {
     'use strict';
 
-    var React          = require('react')
-        , Boxes        = require('./components/Boxes')
-        , MenuModel    = require('./stores/AppStore').getModel('menu')
-        , _            = require('lodash');
-
-    var CssResetStyle  = require('css-reset/reset.css')
-        , BaseStyle    = require('../style/Base.less')
-        , ButtonStyle  = require('../style/Button.less');
+    var MenuModel        = require('./stores/AppStore').getModel('menu');
 
     var App = React.createClass({
         getInitialState: function () {
             return {
-                page: MenuModel.find({id: {'$eq': '010'}})[0].page,
-                items: MenuModel.data
+                activeKey: MenuModel.findAllAnd().orderBy('key')[0].key
             };
         },
-        handleOnClick: function (id) {
+        handleClick: function (key) {
             this.setState({
-                page: MenuModel.find({id: {'$eq': id}})[0].page
+                activeKey: key
             });
         },
         render: function () {
-            var Page = require('./pages/' + this.state.page);
+            var Page = require('./pages/' + MenuModel.findOne({key: {'$eq': this.state.activeKey}}).page);
 
             return (
-                <Boxes horizontal={true} dimension={window.innerHeight} style={_.merge(CssResetStyle, BaseStyle)}>
-                    <Boxes dimension="20%">
-                        {_.map(this.state.items, function (item) {
-                            return (
-                                <button key={item.id} style={ButtonStyle} onClick={this.handleOnClick.bind(this, item.id)}>
-                                    {item.caption}
-                                </button>
-                            );
-                        }, this)}
-                    </Boxes>
-                    <Boxes dimension="80%">
-                        <Page />
-                    </Boxes>
-                </Boxes>
+                <div className="container-fluid">
+                    <div className="row">
+                        <div className="col-md-4">
+                            <ul className="nav nav-pills nav-stacked">
+                                {_.map(MenuModel.findAllAnd().orderBy('key'), function (item) {
+                                    return (
+                                        <li className={this.state.activeKey === item.key ? 'active' : ''} key={item.key}>
+                                            <a onClick={this.handleClick.bind(this, item.key)}>
+                                                {item.caption}
+                                            </a>
+                                        </li>
+                                    )
+                                }, this)}
+                            </ul>
+                        </div>
+                        <div className="col-md-8">
+                            <Page />
+                        </div>
+                    </div>
+                </div>
             );
         }
     });
