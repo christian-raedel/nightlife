@@ -3,13 +3,19 @@
 (function () {
     'use strict';
 
-    var Bootstrap   = require('bootstrap/dist/js/bootstrap')
-        , MenuModel = require('./stores/AppStore').getModel('menu');
+    var Bootstrap   = require('bootstrap/dist/js/bootstrap');
 
     var App = React.createClass({
         getInitialState: function () {
+            var pages = [{
+                key: '010',
+                caption: 'TV-Serien',
+                page: 'TvDBSearchPage'
+            }];
+
             return {
-                activeKey: MenuModel.findAllAnd().orderBy('key')[0].key
+                pages: pages,
+                activeKey: pages[0].key
             };
         },
         handleClick: function (key) {
@@ -18,25 +24,25 @@
             });
         },
         render: function () {
-            var Page = require('./pages/' + MenuModel.findOne({key: {'$eq': this.state.activeKey}}).page);
+            var Page = require('./pages/' + _.find(this.state.pages, {key: this.state.activeKey}).page);
 
             return (
-                <div className="container">
+                <div className="container-fluid">
                     <div className="row">
                         <div className="col-md-2">
-                            <ul className="nav nav-pills">
-                                {_.map(MenuModel.findAllAnd().orderBy('key'), function (item) {
+                            <ul className="nav nav-pills nav-stacked">
+                                {_.map(this.state.pages, function (page) {
                                     return (
-                                        <li className={this.state.activeKey === item.key ? 'active' : ''} key={item.key}>
-                                            <a onClick={this.handleClick.bind(this, item.key)}>
-                                                {item.caption}
+                                        <li className={this.state.activeKey === page.key ? 'active' : ''} key={page.key}>
+                                            <a onClick={this.handleClick.bind(this, page.key)}>
+                                                {page.caption}
                                             </a>
                                         </li>
                                     )
                                 }, this)}
                             </ul>
                         </div>
-                        <div className="col-md-9 col-md-offset-1">
+                        <div className="col-md-10">
                             <Page />
                         </div>
                     </div>

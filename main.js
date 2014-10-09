@@ -6,6 +6,7 @@ var app             = require('app')
     , filemanager   = require('./lib/filemanager')
     , TvDB          = require('./lib/tvdb')
     , CLogger       = require('node-clogger')
+    , ConfigStore   = require('./client/js/stores/ConfigStore')
     , q             = require('q')
     , _             = require('lodash');
 
@@ -42,14 +43,14 @@ app.on('ready', function () {
     });
 });
 
-ipc.on('choose-folders', function (ev) {
+ipc.on('choose-folders', function (ev, series) {
     logger.info('received choose-folders event...');
     dialog.showOpenDialog({properties: ['openDirectory', 'multiSelections']}, function (folders) {
         logger.info('choosen folders:', folders);
         var queue = [];
 
         _.forEach(folders, function (folder) {
-            var find = filemanager.find(folder, 'mkv|avi|mp4');
+            var find = filemanager.find(folder, ConfigStore.getValue('mediaFiles'));
             queue.push(find);
         });
 
@@ -58,7 +59,25 @@ ipc.on('choose-folders', function (ev) {
             files = _.flatten(files);
             logger.info('found files:', files);
 
-            ev.sender.send('choosen-files', files);
+            tvdb.getFilenames(files, series, ConfigStore.getValue('basedir'))
+            .then(function (files) {
+                logger.info('rename infos:', files);
+                ev.returnValue = _.merge(series, {files: files});
+            })
+            .catch(function (err) {
+                logger.error('cannot get rename infos!', err, err.stack);
+                dialog.showMessageBox({
+                    type: 'warning',
+                    buttons: [
+                        'Ok',
+                        'Abbrechen'
+                    ],
+                    title: 'Fehler beim Ermitteln der neuen Dateinamen',
+                    message: err.message,
+                    detail: err.stack
+                });
+            })
+            .done();
         })
         .catch(function (err) {
             logger.error('cannot find files!', err, err.stack);
@@ -71,10 +90,7 @@ ipc.on('search-series', function (ev, query, lang) {
     logger.info('lookup series [%s]', query, lang);
     tvdb.getSeries(query, lang)
     .then(function (series) {
-        ev.sender.send('found-series', series);
-    })
-    .progress(function (value) {
-        ev.sender.send('progress', value);
+        ev.returnValue = series;
     })
     .catch(function (err) {
         logger.error('cannot lookup series', err, err.stack);

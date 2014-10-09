@@ -1,7 +1,7 @@
 var webpack = require('webpack');
 
 module.exports = {
-    entry: './client/js/app',
+    entry: './client/js/App',
     output: {
         path: __dirname + '/client',
         filename: 'bundle.js'
@@ -29,5 +29,5 @@ module.exports = {
         })
     ],
     bail: true,
-    target: 'node'
+    target: 'atom'
 }
