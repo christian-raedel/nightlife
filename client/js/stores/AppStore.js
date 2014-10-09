@@ -6,11 +6,20 @@
     var AppStore = new CStore({
         name: 'app-store'
     })
+    .addModel(new CStore.CSModel({name: 'settings'}))
     .addModel(new CStore.CSModel({name: 'menu'}))
     .addModel(new CStore.CSModel({name: 'query-cache'}))
+    .addModel(new CStore.CSModel({name: 'languages'}))
     .addModel(new CStore.CSModel({name: 'series'}));
 
     module.exports = AppStore;
+
+    var SettingsModel = AppStore.getModel('settings');
+    SettingsModel.insert({defaultLanguage: {
+        id           : 14,
+        name         : 'Deutsch',
+        abbreviation : 'de'
+    }});
 
     var MenuModel = AppStore.getModel('menu');
     MenuModel.insert({key: '010', caption: 'Start', page: 'HomePage.jsx'});

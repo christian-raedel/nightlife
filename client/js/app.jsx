@@ -3,7 +3,8 @@
 (function () {
     'use strict';
 
-    var MenuModel        = require('./stores/AppStore').getModel('menu');
+    var Bootstrap   = require('bootstrap/dist/js/bootstrap')
+        , MenuModel = require('./stores/AppStore').getModel('menu');
 
     var App = React.createClass({
         getInitialState: function () {
@@ -20,10 +21,10 @@
             var Page = require('./pages/' + MenuModel.findOne({key: {'$eq': this.state.activeKey}}).page);
 
             return (
-                <div className="container-fluid">
+                <div className="container">
                     <div className="row">
-                        <div className="col-md-4">
-                            <ul className="nav nav-pills nav-stacked">
+                        <div className="col-md-2">
+                            <ul className="nav nav-pills">
                                 {_.map(MenuModel.findAllAnd().orderBy('key'), function (item) {
                                     return (
                                         <li className={this.state.activeKey === item.key ? 'active' : ''} key={item.key}>
@@ -35,7 +36,7 @@
                                 }, this)}
                             </ul>
                         </div>
-                        <div className="col-md-8">
+                        <div className="col-md-9 col-md-offset-1">
                             <Page />
                         </div>
                     </div>

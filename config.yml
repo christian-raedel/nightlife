@@ -1,0 +1,5 @@
+api:
+    baseurl: http://thetvdb.com/api/
+    key: 66019AFB50EA6280
+
+filename: '{{basedir}}/{{series.name|escape}}/Staffel {{episode.season|number:2}}/{{series.name|escape}} - S{{episode.season|number:2}}E{{episode.episode|number:2}} - {{episode.name|escape}}{{extension}}'

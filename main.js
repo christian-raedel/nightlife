@@ -67,14 +67,30 @@ ipc.on('choose-folders', function (ev) {
     });
 });
 
-ipc.on('search-series', function (ev, query) {
-    logger.info('lookup series [%s]', query);
-    tvdb.getSeries(query, 'de')
+ipc.on('search-series', function (ev, query, lang) {
+    logger.info('lookup series [%s]', query, lang);
+    tvdb.getSeries(query, lang)
     .then(function (series) {
         ev.sender.send('found-series', series);
+    })
+    .progress(function (value) {
+        ev.sender.send('progress', value);
     })
     .catch(function (err) {
         logger.error('cannot lookup series', err, err.stack);
     })
     .done();
 });
+
+ipc.on('get-languages', function (ev) {
+    logger.info('get list of supported languages');
+    tvdb.getLanguages()
+    .then(function (languages) {
+        logger.info('supported languages:', languages);
+        ev.returnValue = languages;
+    })
+    .catch(function (err) {
+        logger.error('cannot receive supported languages!', err, err.stack);
+    })
+    .done();
+})

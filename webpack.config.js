@@ -22,10 +22,10 @@ module.exports = {
     },
     plugins: [
         new webpack.ProvidePlugin({
-            '_'         : 'lodash',
-            '$'         : 'jquery',
-            'jQuery'    : 'jquery',
-            'React'     : 'react'
+            '_'      : 'lodash',
+            '$'      : 'jquery',
+            'jQuery' : 'jquery',
+            'React'  : 'react'
         })
     ],
     bail: true,
