@@ -7,13 +7,13 @@
         , Container    = PageComponents.Container
         , Row          = PageComponents.Row
         , Panel        = PageComponents.Panel
-        , ConfigStore  = require('../stores/ConfigStore')
-        , logger       = require('../util').logger
-        , engine       = require('dna').createDNA()
         , ipc          = require('ipc')
         , shell        = require('shell')
         , remote       = require('remote')
         , dialog       = remote.require('dialog')
+        , ConfigStore  = remote.require('./client/js/stores/ConfigStore')
+        , engine       = require('dna').createDNA()
+        , logger       = require('../util').logger
         , fs           = require('fs.extra')
         , path         = require('path')
         , q            = require('q');
@@ -286,7 +286,7 @@
                                                             <div className="progress-bar progress-bar-striped active" role="progressbar"
                                                                 aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
                                                                 style={{width: '100%'}}>
-                                                                <span class="sr-only">Work in progress...</span>
+                                                                <span class="sr-only">In Arbeit...</span>
                                                             </div>
                                                         </div>
                                                     </Row>

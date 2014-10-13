@@ -2,6 +2,7 @@ defaultLanguage:
   id: 14
   name: Deutsch
   abbreviation: de
+zoomLevel: 2
 mediaFiles: "mkv|avi|mp4"
-basedir: /home/cid/Videos/renamed
-filename: "{{basedir}}/{{series.name|escape}}/Staffel {{episode.season|number:2}}/{{series.name|escape}} - S{{episode.season|number:2}}E{{episode.episode|number:2}} - {{episode.name|escape}}{{extension}}"
+basedir: /home/cid/media/DINGE/Video/Serien
+filename: "{{basedir}}/{{series.name|escape}}/Staffel {{episode.season|number:2}}/S{{episode.season|number:2}}E{{episode.episode|number:2}} - {{episode.name|escape}}{{extension}}"

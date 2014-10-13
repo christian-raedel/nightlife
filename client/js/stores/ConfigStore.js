@@ -7,13 +7,15 @@
     function createConfigStore () {
         return new CConf('config-store', [
             'defaultLanguage',
-            'basedir'
+            'basedir',
+            'zoomLevel',
         ], {
             'defaultLanguage': {
                 'id': 14,
                 'name': 'Deutsch',
                 'abbreviation': 'de'
-            }
+            },
+            'zoomLevel': 0
         });
     }
 

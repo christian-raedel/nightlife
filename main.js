@@ -38,7 +38,7 @@ app.on('ready', function () {
         width: 1280,
         height: 800,
         center: true,
-        'zoom-factor': 1.5,
+        'zoom-factor': ConfigStore.getValue('zoomLevel'),
         title: 'Nightlife'
     });
     mainWindow.loadUrl('file://' + process.cwd() + '/client/index.html');

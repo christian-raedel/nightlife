@@ -10,20 +10,24 @@
         , remote       = require('remote')
         , dialog       = remote.require('dialog')
         , ConfigStore  = remote.require('./client/js/stores/ConfigStore')
+        , webview      = require('web-view')
         , logger       = require('../util').logger;
 
     var SettingsPage = React.createClass({
         getInitialState: function () {
             var basedir = ConfigStore.getValue('basedir')
                 , mediaFiles = ConfigStore.getValue('mediaFiles')
-                , filename = ConfigStore.getValue('filename');
+                , filename = ConfigStore.getValue('filename')
+                , level = ConfigStore.getValue('zoomLevel');
             logger.info('configured basedir:', basedir);
             logger.info('configured mediaFiles:', mediaFiles);
             logger.info('configured filename:', filename);
+            logger.info('configured zoomLevel:' , level);
             return {
                 basedir: basedir,
                 mediaFiles: mediaFiles,
                 filename: filename,
+                level: level,
                 configfile: ConfigStore.filename,
                 saved: false
             };
@@ -64,8 +68,19 @@
             ConfigStore.setValue('basedir', this.state.basedir);
             ConfigStore.setValue('mediaFiles', this.state.mediaFiles);
             ConfigStore.setValue('filename', this.state.filename);
+            ConfigStore.setValue('zoomLevel', this.state.level);
             this.setState({
                 saved: ConfigStore.save()
+            });
+        },
+        handleZoom: function (level) {
+            if (level !== 0) {
+                level = webview.getZoomLevel() + level;
+            }
+            webview.setZoomLevel(level);
+            this.setState({
+                level: level,
+                saved: false
             });
         },
         render: function () {
@@ -120,6 +135,19 @@
                                     </span>
                                 </div>
                             </form>
+                        </Panel>
+                        <Panel title={'Zoom: ' + Math.floor(webview.getZoomFactor() * 100)}>
+                            <div className="btn-group">
+                                <button type="button" className="btn btn-primary" onClick={this.handleZoom.bind(this, -1)}>
+                                    <span className="glyphicon glyphicon-zoom-out">Verkleinern</span>
+                                </button>
+                                <button type="button" className="btn btn-primary" onClick={this.handleZoom.bind(this, 0)}>
+                                    <span className="glyphicon glyphicon-search">Zurücksetzen</span>
+                                </button>
+                                <button type="button" className="btn btn-primary" onClick={this.handleZoom.bind(this, 1)}>
+                                    <span className="glyphicon glyphicon-zoom-in">Vergrößern</span>
+                                </button>
+                            </div>
                         </Panel>
                         <Panel title={'Konfigurationsdatei: ' + this.state.configfile + (this.state.saved ? ' gespeichert.' : '')}>
                             <button className="btn btn-primary" type="button" onClick={this.handleSaveConfig}>
