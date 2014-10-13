@@ -50,6 +50,6 @@
     "mocha": "^1.21.4",
     "raw-loader": "^0.5.1",
     "style-loader": "^0.8.1",
-    "webpack": "^1.4.4"
+    "webpack": "git+https://github.com/christian-raedel/webpack"
   }
 }

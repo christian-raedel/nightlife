@@ -2,7 +2,8 @@ var TvDB       = require('../lib/tvdb')
     , chai     = require('chai')
     , expect   = chai.expect
     , promised = require('chai-as-promised')
-    , spies    = require('chai-spies');
+    , spies    = require('chai-spies')
+    , fs       = require('fs.extra');
 
 chai.use(promised).use(spies);
 
@@ -16,7 +17,7 @@ describe('TvDB#getter', function () {
     var tvdb = null, series = null;
 
     beforeEach(function () {
-        tvdb = new TvDB();
+        tvdb = new TvDB(process.cwd() + '/config.yml');
     });
 
     it('should receive a mirrorlist', function () {

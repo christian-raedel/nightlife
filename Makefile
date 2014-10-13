@@ -1,10 +1,11 @@
-all: clean install test docs
+all: clean install test
 
 install:
 	@echo "************************"
 	@echo "* INSTALL DEPENDENCIES *"
 	@echo "************************"
 	@npm install --python=/usr/bin/python2.7
+	@./node_modules/.bin/webpack --progress
 
 test:
 	@echo "************************"
@@ -13,24 +14,11 @@ test:
 	@cat .dev-logo
 	@./node_modules/.bin/mocha --recursive test/*.spec.js
 
-docs:
-	@echo "************************"
-	@echo "* CREATE DOCUMENTATION *"
-	@echo "************************"
-	@./node_modules/.bin/jsdoc --recurse --private --destination ./doc lib/*.js README.md
-
-github.io:
-	@echo "************************"
-	@echo "* CREATE DOCUMENTATION *"
-	@echo "* FOR GITHUB.IO        *"
-	@echo "************************"
-	@./node_modules/.bin/jsdoc --recurse --destination ../christian-raedel.github.io/nightlife lib/*.js README.md
-
 clean:
 	@echo "************************"
 	@echo "* CLEANUP DIRECTORY    *"
 	@echo "************************"
 	-@rm -rf ./node_modules
-	-@rm -rf ./doc
+	-@rm -f ./client/bundle.js
 
-.PHONY: all install test docs
+.PHONY: all install test
