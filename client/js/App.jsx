@@ -3,7 +3,10 @@
 (function () {
     'use strict';
 
-    var Bootstrap   = require('bootstrap/dist/js/bootstrap');
+    var Bootstrap        = require('bootstrap/dist/js/bootstrap')
+        , PageComponents = require('./components/PageComponents')
+        , Container      = PageComponents.Container
+        , Row            = PageComponents.Row;
 
     var App = React.createClass({
         getInitialState: function () {
@@ -11,6 +14,10 @@
                 key: '010',
                 caption: 'TV-Serien',
                 page: 'TvDBSearchPage'
+            }, {
+                key: '027',
+                caption: 'Einstellungen',
+                page: 'SettingsPage'
             }];
 
             return {
@@ -27,8 +34,8 @@
             var Page = require('./pages/' + _.find(this.state.pages, {key: this.state.activeKey}).page);
 
             return (
-                <div className="container-fluid">
-                    <div className="row">
+                <Container>
+                    <Row>
                         <div className="col-md-2">
                             <ul className="nav nav-pills nav-stacked">
                                 {_.map(this.state.pages, function (page) {
@@ -45,8 +52,8 @@
                         <div className="col-md-10">
                             <Page />
                         </div>
-                    </div>
-                </div>
+                    </Row>
+                </Container>
             );
         }
     });

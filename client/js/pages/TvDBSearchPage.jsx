@@ -3,16 +3,20 @@
 (function () {
     'use strict';
 
-    var ConfigStore = require('../stores/ConfigStore')
-        , logger    = require('../util').logger
-        , engine    = require('dna').createDNA()
-        , ipc       = require('ipc')
-        , shell     = require('shell')
-        , remote    = require('remote')
-        , dialog    = remote.require('dialog')
-        , fs        = require('fs.extra')
-        , path      = require('path')
-        , q         = require('q');
+    var PageComponents = require('../components/PageComponents')
+        , Container    = PageComponents.Container
+        , Row          = PageComponents.Row
+        , Panel        = PageComponents.Panel
+        , ConfigStore  = require('../stores/ConfigStore')
+        , logger       = require('../util').logger
+        , engine       = require('dna').createDNA()
+        , ipc          = require('ipc')
+        , shell        = require('shell')
+        , remote       = require('remote')
+        , dialog       = remote.require('dialog')
+        , fs           = require('fs.extra')
+        , path         = require('path')
+        , q            = require('q');
 
     var TvDBSearchPage = React.createClass({
         getBannerPath: function (series) {
@@ -295,42 +299,6 @@
                         </Panel>
                     </Row>
                 </Container>
-            );
-        }
-    });
-
-    var Container = React.createClass({
-        render: function () {
-            return this.transferPropsTo(
-                <div className="container-fluid">
-                    {this.props.children}
-                </div>
-            );
-        }
-    });
-
-    var Row = React.createClass({
-        render: function () {
-            return this.transferPropsTo(
-                <div className="row">
-                    {this.props.children}
-                </div>
-            );
-        }
-    });
-
-    var Panel = React.createClass({
-        render: function () {
-            return this.transferPropsTo(
-                <div className="panel panel-info">
-                    <div className="panel-heading">
-                        <span>{this.props.title}</span>
-                        <span className="badge">{this.props.badge > 0 ? this.props.badge : null}</span>
-                    </div>
-                    <div className="panel-body">
-                        {this.props.children}
-                    </div>
-                </div>
             );
         }
     });
