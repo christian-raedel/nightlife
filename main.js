@@ -5,19 +5,19 @@ var app             = require('app')
     , shortcut      = require('global-shortcut')
     , filemanager   = require('./lib/filemanager')
     , TvDB          = require('./lib/tvdb')
-    , CLogger       = require('node-clogger')
+    , logger        = require('./client/js/util').logger
     , CConf         = require('node-cconf')
     , ConfigStore   = require('./client/js/stores/ConfigStore')
     , path          = require('path')
     , q             = require('q')
     , _             = require('lodash');
 
-console.log(process.argv);
+logger.info('arguments:', process.argv);
 var config = new CConf('nightlife-options', ['config'], {
     'config': path.resolve(__dirname, 'config.yml')
 })
 .load(process.argv);
-console.log(config.getValue('config'));
+logger.info('configfile:', config.getValue('config'));
 
 ConfigStore.load(config.getValue('config'));
 
@@ -28,8 +28,7 @@ app.on('window-all-closed', function () {
 });
 
 var mainWindow = null
-    , tvdb     = new TvDB(ConfigStore.config)
-    , logger   = new CLogger({name: 'nightlife-app'});
+    , tvdb     = new TvDB(ConfigStore.config);
 
 process.chdir(__dirname);
 
