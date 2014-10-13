@@ -6,19 +6,32 @@ var app             = require('app')
     , filemanager   = require('./lib/filemanager')
     , TvDB          = require('./lib/tvdb')
     , CLogger       = require('node-clogger')
+    , CConf         = require('node-cconf')
     , ConfigStore   = require('./client/js/stores/ConfigStore')
+    , path          = require('path')
     , q             = require('q')
     , _             = require('lodash');
 
-var mainWindow = null
-    , tvdb     = new TvDB()
-    , logger   = new CLogger({name: 'nightlife-app'});
+console.log(process.argv);
+var config = new CConf('nightlife-options', ['config'], {
+    'config': path.resolve(__dirname, 'config.yml')
+})
+.load(process.argv);
+console.log(config.getValue('config'));
+
+ConfigStore.load(config.getValue('config'));
 
 app.on('window-all-closed', function () {
     if (process.platform != 'darwin') {
         app.quit();
     }
 });
+
+var mainWindow = null
+    , tvdb     = new TvDB(ConfigStore.config)
+    , logger   = new CLogger({name: 'nightlife-app'});
+
+process.chdir(__dirname);
 
 app.on('ready', function () {
     mainWindow = new BrowserWindow({

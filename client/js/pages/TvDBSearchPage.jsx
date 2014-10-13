@@ -87,7 +87,7 @@
             var updated = ipc.sendSync('choose-folders', series);
             this.setState({
                 series: _.map(this.state.series, function (series) {
-                    if (series.id === updated.id) {
+                    if (series.id === updated.id && series.language === updated.language) {
                         return updated;
                     } else {
                         return series;
@@ -105,19 +105,31 @@
                     finished: false
                 });
 
+                var elem = document.getElementById('series-' + series.id + '-' + series.language);
+                elem.scrollIntoView();
+
                 var queue = _.map(series.files, function (file) {
-                    logger.info('%s file from [%] to [%s]', op, file[0], file[1]);
-                    return q.nfcall(fs.mkdirRecursive, path.dirname(file[1]))
-                    .then(function () {
-                        return q.nfcall(fs[op], file[0], file[1]);
-                    });
+                    if (file[0] !== file[1]) {
+                        logger.info('%s file from [%s] to [%s]', op, file[0], file[1]);
+                        return q.nfcall(fs.mkdirRecursive, path.dirname(file[1]))
+                        .then(function () {
+                            return q.nfcall(fs[op], file[0], file[1]);
+                        });
+                    } else {
+                        logger.warn('skipping file [%s]', file[0]);
+                        return false;
+                    }
                 });
 
-                q.all(queue)
+                q.all(_.filter(queue, function (promise) {
+                    return promise;
+                }))
+                .delay(5000)
                 .then(function () {
                     self.setState({
                         finished: true
                     });
+                    self.handleReset(series.id);
                 })
                 .catch(function (err) {
                     logger.error('error on %s:', op, err, err.stack);
@@ -183,7 +195,8 @@
                             <div className="list-group">
                                 {_.map(this.state.series, function (series, idx) {
                                     return (
-                                        <div key={idx} className="list-group-item">
+                                        <div key={idx} className="list-group-item"
+                                            id={'series-' + series.id + '-' + series.language}>
                                             <h4 className="list-group-item-heading row">
                                                 <HeadingTable index={idx} series={series}
                                                     selectedLanguage={this.state.selectedLanguage}
