@@ -3,27 +3,33 @@
 (function () {
     'use strict';
 
-    var PageComponents = require('../components/PageComponents')
-        , Container    = PageComponents.Container
-        , Row          = PageComponents.Row
-        , Panel        = PageComponents.Panel
-        , ipc          = require('ipc')
-        , shell        = require('shell')
-        , remote       = require('remote')
-        , dialog       = remote.require('dialog')
-        , ConfigStore  = remote.require('./client/js/stores/ConfigStore')
-        , engine       = require('dna').createDNA()
-        , logger       = require('../util').logger
-        , fs           = require('fs.extra')
-        , path         = require('path')
-        , q            = require('q');
+    var PageComponents    = require('../components/PageComponents')
+        , Container       = PageComponents.Container
+        , Row             = PageComponents.Row
+        , Panel           = PageComponents.Panel
+        , TableComponents = require('../components/TableComponents')
+        , HeadingTable    = TableComponents.HeadingTable
+        , GroupItemTable  = TableComponents.GroupItemTable
+        , ipc             = require('ipc')
+        , shell           = require('shell')
+        , remote          = require('remote')
+        , dialog          = remote.require('dialog')
+        , ConfigStore     = remote.require('./client/js/stores/ConfigStore')
+        , AppStore        = require('../stores/AppStore')
+        , SeriesModel     = AppStore.getModel('series')
+        , LangModel       = AppStore.getModel('lang')
+        , engine          = require('dna').createDNA()
+        , logger          = require('../util').logger
+        , fs              = require('fs.extra')
+        , path            = require('path')
+        , q               = require('q');
 
     var TvDBSearchPage = React.createClass({
         getBannerPath: function (series) {
             var api = ConfigStore.getValue('api');
             if (series.banner) {
                 var bannerpath = 'http://thetvdb.com/banners/' + series.banner;
-                logger.info('resolve bannerpath:', bannerpath);
+                logger.info('resolved bannerpath:', bannerpath);
                 return bannerpath;
             } else {
                 return '';
@@ -35,8 +41,8 @@
             return {
                 query: '',
                 selectedLanguage: ConfigStore.getValue('defaultLanguage:abbreviation'),
-                supportedLanguages: ipc.sendSync('get-languages'),
-                series: [],
+                supportedLanguages: LangModel.findAllAnd().orderBy('name'),
+                serieslist: [],
                 links: [{
                     key: '001',
                     caption: 'TheTVDB.com',
@@ -77,9 +83,11 @@
         },
         handleSearch: function (ev) {
             this.setState({
-                series: _.map(ipc.sendSync('search-series', this.state.query, this.state.selectedLanguage), function (series) {
-                    return _.merge(series, {files: []});
-                })
+                serieslist: _.map(ipc.sendSync('search-series', this.state.query, this.state.selectedLanguage), function (series) {
+                    series.banner = this.getBannerPath(series);
+                    series.files = [];
+                    return series;
+                }, this)
             });
         },
         handleLangSelect: function (selectedLanguage) {
@@ -90,7 +98,7 @@
         handleOpenFolder: function (series) {
             var updated = ipc.sendSync('choose-folders', series);
             this.setState({
-                series: _.map(this.state.series, function (series) {
+                serieslist: _.map(this.state.serieslist, function (series) {
                     if (series.id === updated.id && series.language === updated.language) {
                         return updated;
                     } else {
@@ -113,7 +121,7 @@
                 elem.scrollIntoView();
 
                 var queue = _.map(series.files, function (file) {
-                    if (file[0] !== file[1]) {
+                    if (file[0] !== file[1] && !fs.existsSync(file[1])) {
                         logger.info('%s file from [%s] to [%s]', op, file[0], file[1]);
                         return q.nfcall(fs.mkdirRecursive, path.dirname(file[1]))
                         .then(function () {
@@ -130,6 +138,7 @@
                 }))
                 .delay(5000)
                 .then(function () {
+                    self.handleImport(series);
                     self.setState({
                         finished: true
                     });
@@ -149,7 +158,7 @@
             }
         },
         handleReset: function (id) {
-            var series = _.map(this.state.series, function (series) {
+            var serieslist = _.map(this.state.serieslist, function (series) {
                 if (series.id === id) {
                     series.files = [];
                 }
@@ -157,14 +166,33 @@
             });
 
             this.setState({
-                series: series
+                serieslist: serieslist
             });
+        },
+        handleImport: function (series) {
+            var doc = SeriesModel.findOne({id: {'$eq': series.id}, language: {'$eq': series.language}});
+            var episodes = _.map(series.files, function (file) {
+                return _.merge(file[2], {filename: file[1]});
+            });
+
+            if (doc) {
+                doc.episodes = doc.episodes.concat(episodes);
+                //SeriesModel.update({id: {'$eq': series.id}, language: {'$eq': series.language}});
+            } else {
+                doc = _.merge({}, series);
+                delete doc.files;
+                doc.episodes = episodes;
+                //SeriesModel.insert(doc);
+            }
+
+            doc.state = 'new';
+            SeriesModel.insertOrUpdate({id: {'$eq': series.id}, language: {'$eq': series.language}}, doc);
         },
         render: function () {
             return (
                 <Container>
                     <Row>
-                        <Panel title="Suche nach Serientitel" badge={this.state.series.length}>
+                        <Panel title="Suche nach Serientitel" badge={this.state.serieslist.length}>
                             <div className="input-group">
                                 <input ref="queryInput" type="text" className="form-control" onChange={this.handleChange}
                                     onKeyPress={this.handleKeyPress} placeholder="Serientitel eingeben..." />
@@ -195,9 +223,9 @@
                         </Panel>
                     </Row>
                     <Row>
-                        <Panel style={this.state.series.length ? {} : {display: 'none'}}>
+                        <Panel style={this.state.serieslist.length ? {} : {display: 'none'}}>
                             <div className="list-group">
-                                {_.map(this.state.series, function (series, idx) {
+                                {_.map(this.state.serieslist, function (series, idx) {
                                     return (
                                         <div key={idx} className="list-group-item"
                                             id={'series-' + series.id + '-' + series.language}>
@@ -207,7 +235,7 @@
                                                     supportedLanguages={this.state.supportedLanguages} />
                                             </h4>
                                             <p className="list-group-item-text">
-                                                <GroupItemTable series={series} banner={this.getBannerPath(series)}/>
+                                                <GroupItemTable series={series} banner={series.banner}/>
                                                 <Container>
                                                     <Row>
                                                         <div className={'btn-group ' + (this.state.finished ? 'show' : 'hidden')}>
@@ -248,6 +276,7 @@
                                                         <thead>
                                                             <tr>
                                                                 <th>Alter Dateiname</th>
+                                                                <th>&nbsp;</th>
                                                                 <th>Neuer Dateiname</th>
                                                             </tr>
                                                         </thead>
@@ -256,6 +285,11 @@
                                                                 return (
                                                                     <tr key={idx}>
                                                                         <td>{file[0]}</td>
+                                                                        <td>
+                                                                            <span className={'glyphicon ' + (file[0] === file[1] ?
+                                                                                'glyphicon-resize-horizontal' :
+                                                                                'glyphicon-arrow-right')}></span>
+                                                                        </td>
                                                                         <td>{file[1]}</td>
                                                                     </tr>
                                                                 );
@@ -299,72 +333,6 @@
                         </Panel>
                     </Row>
                 </Container>
-            );
-        }
-    });
-
-    var HeadingTable = React.createClass({
-        render: function () {
-            return this.transferPropsTo(
-                <table className="table table-striped">
-                    <thead>
-                        <tr>
-                            <th width="5%">#</th>
-                            <th width="35%">Titel</th>
-                            <th width="20%">Sprache</th>
-                            <th width="25%">Sender</th>
-                            <th width="15%">Jahr</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{this.props.index + 1}</td>
-                            <td>{this.props.series.name}</td>
-                            <td>
-                                <span className={'label label-' +
-                                    (this.props.selectedLanguage !== this.props.series.language ? 'warning' : 'success')}>
-                                    {_.find(this.props.supportedLanguages, {abbreviation: this.props.series.language}).name}
-                                </span>
-                            </td>
-                            <td>{this.props.series.network}</td>
-                            <td>{this.props.series.firstAired}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            );
-        }
-    });
-
-    var GroupItemTable = React.createClass({
-        render: function () {
-            return this.transferPropsTo(
-                <table className="table table-bordered">
-                    <tbody>
-                        <tr>
-                            <td width="20%"><u>Kurzinformationen:</u></td>
-                            <td width="80%">{this.props.series.overview}</td>
-                        </tr>
-                        <tr style={!this.props.series.alias ? {display: 'none'} : {}}>
-                            <td width="20%">Alternative Titel</td>
-                            <td width="80%">
-                                <ul>
-                                    {_.map(this.props.series.alias.split('|'), function (alias, idx) {
-                                        return (
-                                            <li key={idx}>{alias}</li>
-                                        );
-                                    }, this)}
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr style={!this.props.series.banner ? {display: 'none'} : {}}>
-                            <td colSpan="2">
-                                <div className="thumbnail">
-                                    <img src={this.props.banner} />
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
             );
         }
     });
