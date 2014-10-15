@@ -10,19 +10,22 @@
         , TableComponents = require('../components/TableComponents')
         , HeadingTable    = TableComponents.HeadingTable
         , GroupItemTable  = TableComponents.GroupItemTable
-        , ipc             = require('ipc')
         , shell           = require('shell')
         , remote          = require('remote')
         , dialog          = remote.require('dialog')
-        , ConfigStore     = remote.require('./client/js/stores/ConfigStore')
+        , ConfigStore     = require('../stores/ConfigStore')
         , AppStore        = require('../stores/AppStore')
         , SeriesModel     = AppStore.getModel('series')
         , LangModel       = AppStore.getModel('lang')
+        , filemanager     = remote.require('./lib/filemanager')
+        , TvDB            = remote.require('./lib/tvdb')
         , engine          = require('dna').createDNA()
         , logger          = require('../util').logger
         , fs              = require('fs.extra')
         , path            = require('path')
         , q               = require('q');
+
+    var tvdb = new TvDB(ConfigStore.config);
 
     var TvDBSearchPage = React.createClass({
         getBannerPath: function (series) {
@@ -34,6 +37,28 @@
             } else {
                 return '';
             }
+        },
+        chooseFolders: function (series) {
+            return q.nfcall(dialog.showOpenDialog, {properties: ['openDirectory', 'multiSelections']})
+            .then(function (folders) {
+                return q.all(_.map(folders, function (folder) {
+                    return filemanager.find(folder, ConfigStore.getValue('mediaFiles'));
+                }))
+                .then(function (files) {
+                    return tvdb.getFilenames(_.flatten(files), series, ConfigStore.getValue('basedir'))
+                    .catch(function (err) {
+                        logger.error('cannot get filenames for series:', series.name);
+                        dialog.showMessageBox({
+                            type: 'warning',
+                            buttons: ['Ok'],
+                            title: 'Fehler beim Ermitteln der neuen Dateinamen!',
+                            message: err.message,
+                            detail: err.stack
+                        });
+                    })
+                    .done();
+                });
+            });
         },
         getInitialState: function () {
             var self = this;
@@ -82,13 +107,32 @@
             }
         },
         handleSearch: function (ev) {
-            this.setState({
-                serieslist: _.map(ipc.sendSync('search-series', this.state.query, this.state.selectedLanguage), function (series) {
-                    series.banner = this.getBannerPath(series);
+            var self = this;
+
+            tvdb.getSeries(this.state.query, this.state.selectedLanguage)
+            .then(function (serieslist) {
+                logger.debug('step 1: found series', serieslist);
+                serieslist = _.map(serieslist, function (series) {
+                    series.banner = self.getBannerPath(series);
                     series.files = [];
                     return series;
-                }, this)
-            });
+                });
+
+                logger.debug('step 2: set state', serieslist);
+                self.setState({
+                    serieslist: serieslist
+                });
+            })
+            .catch(function (err) {
+                dialog.showMessageBox({
+                    type: 'warning',
+                    buttons: ['Ok'],
+                    title: 'Fehler beim Suchen nach einer Serie!',
+                    message: err.message,
+                    detail: err.stack
+                });
+            })
+            .done()
         },
         handleLangSelect: function (selectedLanguage) {
             this.setState({
@@ -96,16 +140,28 @@
             });
         },
         handleOpenFolder: function (series) {
-            var updated = ipc.sendSync('choose-folders', series);
-            this.setState({
-                serieslist: _.map(this.state.serieslist, function (series) {
-                    if (series.id === updated.id && series.language === updated.language) {
-                        return updated;
-                    } else {
-                        return series;
-                    }
-                })
-            });
+            var self = this;
+
+            self.chooseFolders(series)
+            .then(function (files) {
+                var updated = _.merge(series, {files: files});
+                self.setState({
+                    serieslist: _.map(self.state.serieslist, function (series) {
+                        return (_.isEqual(series.id, updated.id) && _.isEqual(series.language, updated.language)) ?
+                            updated : series;
+                    })
+                });
+            })
+            .catch(function (err) {
+                dialog.showMessageBox({
+                    type: 'warning',
+                    buttons: ['Ok'],
+                    title: 'Fehler beim Wählen eines Ordners!',
+                    message: err.message,
+                    detail: err.stack
+                });
+            })
+            .done()
         },
         handleOpenUrl: function (url) {
             shell.openExternal(url);

@@ -33,7 +33,8 @@
     "node-clogger": "git+https://github.com/christian-raedel/node-clogger",
     "node-cstore": "git+https://github.com/christian-raedel/node-cstore",
     "q": "^1.0.1",
-    "react": "^0.11.2"
+    "react": "^0.11.2",
+    "yargs": "^1.3.2"
   },
   "devDependencies": {
     "chai": "^1.9.1",

@@ -7,7 +7,10 @@
         , PageComponents = require('./components/PageComponents')
         , Container      = PageComponents.Container
         , Row            = PageComponents.Row
-        , SeriesModel    = require('./stores/AppStore').getModel('series');
+        , SeriesModel    = require('./stores/AppStore').getModel('series')
+        , logger         = require('./util').logger;
+
+    logger.debug('creating app class');
 
     var App = React.createClass({
         getInitialState: function () {

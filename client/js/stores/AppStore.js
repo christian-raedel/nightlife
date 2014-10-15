@@ -1,12 +1,15 @@
 (function () {
     'use strict';
 
-    var CStore    = require('node-cstore')
-        , CSModel = CStore.CSModel
-        , logger  = require('../util').logger
-        , fs      = require('fs.extra')
-        , path    = require('path')
-        , ipc     = require('ipc');
+    var CStore        = require('node-cstore')
+        , CSModel     = CStore.CSModel
+        , ConfigStore = require('./ConfigStore')
+        , logger      = require('../util').logger
+        , fs          = require('fs.extra')
+        , path        = require('path')
+        , remote      = require('remote')
+        , dialog      = remote.require('dialog')
+        , TvDB        = remote.require('./lib/tvdb');
 
     var AppStore = new CStore({
         name: 'app-store',
@@ -41,9 +44,28 @@
         AppStore.save();
     });
 
-    _.forEach(ipc.sendSync('get-languages'), function (language) {
-        LangModel.insertOrUpdate({id: {'$eq': language.id}}, language);
-    });
+    var tvdb = new TvDB(ConfigStore.config);
+
+    tvdb.getLanguages()
+    .then(function (languages) {
+        _.forEach(languages, function (language) {
+            LangModel.insertOrUpdate({id: {'$eq': language.id}}, {
+                id: language.id,
+                abbreviation: language.abbreviation,
+                name: language.name
+            });
+        });
+    })
+    .catch(function (err) {
+        dialog.showMessageBox({
+            type: 'warning',
+            buttons: ['Ok'],
+            title: 'Fehler beim Abfragen der Spracheinstellungen!',
+            message: err.message,
+            details: err.stack
+        });
+    })
+    .done();
 
     module.exports = AppStore;
 }());
