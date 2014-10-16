@@ -20,24 +20,35 @@ describe('TvDB#getter', function () {
         tvdb = new TvDB(process.cwd() + '/config.yml');
     });
 
-    it('should receive a mirrorlist', function () {
-        expect(tvdb.getMirrors()).to.be.fulfilled;
+    it('should receive a mirrorlist', function (done) {
+        tvdb.getMirrors()
+        .then(function (mirrorlist) {
+            expect(mirrorlist).to.be.an('array');
+            done();
+        })
+        .catch(done)
+        .done();
     });
 
-    it('should receive a languagelist', function () {
-        expect(tvdb.getLanguages()).to.be.fulfilled;
+    it('should receive a languagelist', function (done) {
+        tvdb.getLanguages()
+        .then(function (languagelist) {
+            expect(languagelist).to.be.an('array');
+            done();
+        })
+        .catch(done)
+        .done();
     });
 
     it('should receive a series', function (done) {
         tvdb.getSeries('Apartment 23', 'de')
         .then(function (_series) {
+            expect(_series).to.be.an('array');
             expect(_series[0]).to.have.property('id');
             series = _series[0];
             done();
         })
-        .catch(function (err) {
-            done(new Error(err));
-        })
+        .catch(done)
         .done();
     });
 
@@ -47,13 +58,10 @@ describe('TvDB#getter', function () {
 
         tvdb.getEpisodes(series)
         .then(function (episodes) {
-            expect(episodes).to.be.ok;
-            console.log(episodes);
+            expect(episodes).to.be.an('array');
             done();
         })
-        .catch(function (err) {
-            done(new Error(err));
-        })
+        .catch(done)
         .done();
     });
 
@@ -67,12 +75,9 @@ describe('TvDB#getter', function () {
         ], series)
         .then(function (filenames) {
             expect(filenames.length).to.be.equal(3);
-            console.log(filenames);
             done();
         })
-        .catch(function (err) {
-            done(new Error(err));
-        })
+        .catch(done)
         .done();
     });
 });
